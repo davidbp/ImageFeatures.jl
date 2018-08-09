@@ -56,6 +56,22 @@ function create_descriptor(img::AbstractArray{CT, 2}, params::HOG) where CT<:Ima
     create_hog_descriptor(max_mag, max_phase, params)
 end
 
+
+## Avoid the if/elseif/elseif... at every function call. rething this
+function normalize(v, method)
+        if method == "L2-norm"
+            return v./sqrt(sum(abs2, v) + 1e-5)
+        elseif method == "L2-hys"
+            v = v./(sum(abs2, v) + 1e-5)
+            v = min.(v, 0.2)
+            return v./(sum(abs2, v) + 1e-5)
+        elseif method == "L1-norm"
+            return v./(sum(abs, v) + 1e-5)
+        elseif method == "L1-sqrt"
+            return sqrt.(v./(sum(abs, v) + 1e-5))
+        end
+end
+
 function create_hog_descriptor(mag::AbstractArray{T, 2}, phase::AbstractArray{T, 2}, params::HOG) where T<:Images.NumberLike
     orientations = params.orientations
     cell_size = params.cell_size
@@ -81,21 +97,7 @@ function create_hog_descriptor(mag::AbstractArray{T, 2}, phase::AbstractArray{T,
     for i in R
         trilinear_interpolate!(hist, mag[i], phase[i], orientations, i, cell_size, cell_rows, cell_cols, rows, cols)
     end
-
-    function normalize(v, method)
-        if method == "L2-norm"
-            return v./sqrt(sum(abs2, v) + 1e-5)
-        elseif method == "L2-hys"
-            v = v./(sum(abs2, v) + 1e-5)
-            v = min.(v, 0.2)
-            return v./(sum(abs2, v) + 1e-5)
-        elseif method == "L1-norm"
-            return v./(sum(abs, v) + 1e-5)
-        elseif method == "L1-sqrt"
-            return sqrt.(v./(sum(abs, v) + 1e-5))
-        end
-    end
-
+  
     #contrast normalization for each block
     descriptor_size::Int = ((cell_rows-block_size)/block_stride + 1) * ((cell_cols-block_size)/block_stride + 1) * (block_size*block_size) * orientations
     descriptor = Vector{Float64}(descriptor_size)
