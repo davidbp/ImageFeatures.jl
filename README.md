@@ -1,4 +1,11 @@
-# ImageFeatures
+# ImageFeatures Port to 0.7
+
+Objectives:
+
+- Port the code to 0.7 and 1.0.
+- Make all current notebooks 100% reproducible.
+- Improve performance.
+
 
 [![Build Status](https://travis-ci.org/JuliaImages/ImageFeatures.jl.svg?branch=master)](https://travis-ci.org/JuliaImages/ImageFeatures.jl)
 
